@@ -70,6 +70,24 @@
                         "email": {
                           "type": "string",
                           "example": "usuario@email.com"
+                        },
+                        "role": {
+                          "type": "string",
+                          "example": "admin",
+                          "description": "Tipo de usuário: admin, manager, designer, videomaker, cliente"
+                        },
+                        "nome": {
+                          "type": "string",
+                          "example": "Maria Silva"
+                        },
+                        "url_foto": {
+                          "type": "string",
+                          "example": "https://cdn.com/foto.jpg"
+                        },
+                        "whatsapp": {
+                          "type": "string",
+                          "example": "+5511999999999",
+                          "description": "Número do WhatsApp (apenas para cliente)"
                         }
                       }
                     }
@@ -109,9 +127,29 @@
                   "password": {
                     "type": "string",
                     "example": "senha123"
+                  },
+                  "role": {
+                    "type": "string",
+                    "example": "designer",
+                    "description": "Tipo de usuário: admin, manager, designer, videomaker, cliente. Default: cliente"
+                  },
+                  "nome": {
+                    "type": "string",
+                    "example": "Maria Silva",
+                    "description": "Nome completo do usuário"
+                  },
+                  "url_foto": {
+                    "type": "string",
+                    "example": "https://cdn.com/foto.jpg",
+                    "description": "URL da foto do usuário"
+                  },
+                  "whatsapp": {
+                    "type": "string",
+                    "example": "+5511999999999",
+                    "description": "Número do WhatsApp (obrigatório apenas para cliente)"
                   }
                 },
-                "required": ["email", "password"]
+                "required": ["email", "password", "nome", "url_foto"]
               }
             }
           }
@@ -138,6 +176,24 @@
                         "email": {
                           "type": "string",
                           "example": "novo@email.com"
+                        },
+                        "role": {
+                          "type": "string",
+                          "example": "designer",
+                          "description": "Tipo de usuário cadastrado"
+                        },
+                        "nome": {
+                          "type": "string",
+                          "example": "Maria Silva"
+                        },
+                        "url_foto": {
+                          "type": "string",
+                          "example": "https://cdn.com/foto.jpg"
+                        },
+                        "whatsapp": {
+                          "type": "string",
+                          "example": "+5511999999999",
+                          "description": "Número do WhatsApp (apenas para cliente)"
                         }
                       }
                     }
@@ -195,6 +251,71 @@
           "400": { "description": "Requisição malformada" },
           "500": { "description": "Erro interno no servidor" }
         }
+      }
+    },
+    "/auth/admin-only": {
+      "get": {
+        "tags": ["Autenticação"],
+        "summary": "Acesso restrito para admin",
+        "description": "Endpoint protegido, requer token JWT de usuário com role 'admin' no header Authorization.",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "Acesso permitido para admin",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Acesso permitido apenas para admin."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": { "description": "Token não fornecido ou inválido" },
+          "403": { "description": "Acesso negado para role diferente de admin" }
+        }
+      }
+    },
+    "/auth/gestao": {
+      "get": {
+        "tags": ["Autenticação"],
+        "summary": "Acesso para admin e manager",
+        "description": "Endpoint protegido, requer token JWT de usuário com role 'admin' ou 'manager' no header Authorization.",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "Acesso permitido para admin e manager",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Acesso permitido para admin e manager."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": { "description": "Token não fornecido ou inválido" },
+          "403": { "description": "Acesso negado para roles diferentes" }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
       }
     }
   }
